@@ -11,8 +11,9 @@ set(LIB_SRC
 add_library(mix SHARED ${LIB_SRC})
 
 
-
 add_executable(test tests/test.cc)
+add_executable(socket_server ../unp/socket/socket/server.cpp)
+add_executable(socket_client ../unp/socket/socket/client.cpp)
 add_dependencies(test mix)
 target_link_libraries(test mix)
 
