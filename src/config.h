@@ -18,7 +18,7 @@ public:
     ~Config()
     {};
 
-    void parse_config(int argc, char **argv);
+    void ParseConfig(int argc, char **argv);
 
     // 端口号
     uint16_t port_;
@@ -27,7 +27,7 @@ public:
     // 触发组合模式
     int trig_mode_;
     // listenfd 触发模式
-    int listenfd_trig_mode_;
+    int listen_fd_trig_mode_;
     //connfd 触发模式
     int conn_trig_mode_;
     // 优雅关闭链接
@@ -40,11 +40,6 @@ public:
     int close_log_;
     // 并发模型选择
     int actor_mode_;
-
-
-
-
-    //
 };
 
 

@@ -4,7 +4,7 @@
 
 #include "config.h"
 
-void Config::parse_config(int argc, char **argv)
+void Config::ParseConfig(int argc, char **argv)
 {
     int opt;
     const char *str = "p:";
@@ -62,7 +62,7 @@ Config::Config()
     // 触发组合模式，默认 listenfd LT + connfd LT
     trig_mode_ = 0;
     // listenfd 触发模式 默认 LT
-    listenfd_trig_mode_ = 0;
+    listen_fd_trig_mode_ = 0;
     //connfd 触发模式 LT
     conn_trig_mode_ = 0;
     // 优雅关闭链接，默认不使用

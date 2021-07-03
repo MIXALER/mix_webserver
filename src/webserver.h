@@ -16,6 +16,8 @@
 #include <cassert>
 #include <sys/epoll.h>
 
+#include "http/http_conn.h"
+
 
 class WebServer
 {
@@ -25,12 +27,16 @@ public:
     ~WebServer()
     {};
 
-    void init(uint16_t port);
-
-    void start();
-
 public:
     uint16_t port;
+    char* root_;
+    int log_write_;
+    int close_log_;
+    int actor_mode_;
+
+    int pipe_fd_[2];
+    int epoll_fd_;
+
 
 };
 
