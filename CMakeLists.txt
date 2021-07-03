@@ -1,21 +1,25 @@
 cmake_minimum_required(VERSION 3.17)
+
 project(mix_webserver)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_FLAGS "$ENV{CXXFLAS} -rdynamic -O3 -g -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function")
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_CXX_FLAGS "$ENV{CXXFLAS} -rdynamic -O3 -g -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function")
 
-set(LIB_SRC
-        mix/log.cc)
+#set(LIB_SRC
+#        mix/log.cc)
+#add_library(mix SHARED ${LIB_SRC})
+#add_executable(test tests/test.cc)
+#add_dependencies(test mix)
+#target_link_libraries(test mix)
+#
+#SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+#SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-add_library(mix SHARED ${LIB_SRC})
+include_directories("/usr/include/mysql")
 
+add_executable(server tests/test.cc main.cpp config.h webserver.h config.cpp webserver.cpp)
 
-add_executable(test tests/test.cc)
-add_executable(socket_server ../unp/socket/socket/server.cpp)
-add_executable(socket_client ../unp/socket/socket/client.cpp)
-add_dependencies(test mix)
-target_link_libraries(test mix)
+set(MYSQL_LIBS mysqlclient pthread z m rt atomic ssl crypto dl)
 
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+target_link_libraries(server ${MYSQL_LIBS})
