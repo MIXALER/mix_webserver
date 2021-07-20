@@ -1,5 +1,5 @@
 //
-// Created by yuanh on 2021/7/3.
+// Created by yuanh on 2021/4/3.
 //
 
 #ifndef WEBSERVER_HTTP_CONN_H
@@ -25,20 +25,20 @@
 #include <sys/wait.h>
 #include <sys/uio.h>
 #include <map>
+#include <fstream>
 
-#include "lock/locker.h"
-#include "mysql/sql_conn_pool.h"
-#include "timer/list_timer.h"
-#include "log/log.h"
+#include "../lock/locker.h"
+#include "../mysql/sql_conn_pool.h"
+#include "../timer/list_timer.h"
+#include "../log/log.h"
 
-using namespace std;
 
 class HttpConn
 {
 public:
     static const int kFileNameLen = 200;
     static const int kReadBufferSize = 2048;
-    static const int KWriteBufferSize = 1024;
+    static const int kWriteBufferSize = 1024;
     enum Method
     {
         kGet = 0,
@@ -86,21 +86,106 @@ public:
     Init(int sock_fd, const sockaddr_in &addr, char *root, int trig_mode, int close_log, string user, string passwd,
          string sql_name);
 
-    void ThreadPool();
+    void CloseConn(bool real_close = true);
 
-    void SqlPool();
+    void Process();
 
-    void LogWrite();
+    bool ReadOnce();
 
-    void TrigMode();
+    bool Write();
 
-    void EventListen();
+    sockaddr_in *GetAddress()
+    {
+        return &address_;
+    }
 
-    void EventLoop();
+    void InitMysqlResult(ConnectionPool *conn_pool);
 
-    void Timer(int conn_fd, struct sockaddr_in client_address);
+    int timer_flag_;
 
-    void Adjust_timer()
+    int improve_;
+private:
+    void Init();
+
+    HttpCode ProcessRead();
+
+    bool ProcessWrite(HttpCode ret);
+
+    HttpCode ParseRequestLine(char *text);
+
+    HttpCode ParseHeaders(char *text);
+
+    HttpCode ParseContent(char *text);
+
+    HttpCode DoRequest();
+
+    char *GetLine()
+    {
+        return read_buf_ + start_line_;
+    }
+
+    LineStatus ParseLine();
+
+    void UnMap();
+
+    bool AddResponse(const char *format, ...);
+
+    bool AddContent(const char *content);
+
+    bool AddStatusLine(int status, const char *title);
+
+    bool AddHeaders(int content_len);
+
+    bool AddContentType();
+
+    bool AddContentLen(int content_len);
+
+    bool AddLinger();
+
+    bool AddBlankLine();
+
+
+public:
+    static int epoll_fd_;
+    static int user_count_;
+    MYSQL *mysql_;
+    int state_; // 读为 0，写为 1
+
+private:
+    int sock_fd_;
+    sockaddr_in address_;
+    char read_buf_[kReadBufferSize];
+    int read_idx_;
+    int checked_idx_;
+    int start_line_;
+    char write_buf_[kWriteBufferSize];
+    int write_idx_;
+    CheckState check_state_;
+    Method method_;
+    char real_file_[kFileNameLen];
+    char *url_;
+    char *version_;
+    char *host_;
+    int content_len_;
+    bool linger_;
+    char *file_address_;
+    struct stat file_state_;
+    struct iovec iv_[2];
+    int iv_count_;
+    int cgi_; // 是否启用的 POST
+    char *string_; // 存储请求头数据
+    int bytes_to_send_;
+    int bytes_have_send_;
+    char *doc_root_;
+
+    map<string, string> users_;
+    int trig_mode_;
+    int close_log_;
+
+    char sql_user_[100];
+    char sql_passwd_[100];
+    char sql_name_[100];
+
 };
 
 #endif //WEBSERVER_HTTP_CONN_H

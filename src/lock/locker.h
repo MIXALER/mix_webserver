@@ -1,8 +1,129 @@
 //
-// Created by yuanh on 2021/7/3.
+// Created by yuanh on 2021/4/3.
 //
 
 #ifndef WEBSERVER_LOCKER_H
 #define WEBSERVER_LOCKER_H
+
+#include <exception>
+#include <pthread.h>
+#include <semaphore.h>
+
+class Sem
+{
+public:
+    Sem()
+    {
+        if (sem_init(&sem_, 0, 0) != 0)
+        {
+            throw std::exception();
+        }
+    }
+
+    Sem(int num)
+    {
+        if (sem_init(&sem_, 0, num) != 0)
+        {
+            throw std::exception();
+        }
+    }
+
+    ~Sem()
+    {
+        sem_destroy(&sem_);
+    }
+
+    bool Wait()
+    {
+        return sem_wait(&sem_) == 0;
+    }
+
+    bool Post()
+    {
+        return sem_post(&sem_) == 0;
+    }
+
+private:
+    sem_t sem_;
+};
+
+class Locker
+{
+public:
+    Locker()
+    {
+        if (pthread_mutex_init(&mutex_, NULL) != 0)
+        {
+            throw std::exception();
+        }
+    }
+
+    ~Locker()
+    {
+        pthread_mutex_destroy(&mutex_);
+    }
+
+    bool Lock()
+    {
+        return pthread_mutex_lock(&mutex_) == 0;
+    }
+
+    bool Unlock()
+    {
+        return pthread_mutex_unlock(&mutex_) == 0;
+    }
+
+    pthread_mutex_t *Get()
+    {
+        return &mutex_;
+    }
+
+private:
+    pthread_mutex_t mutex_;
+};
+
+class Cond
+{
+public:
+    Cond()
+    {
+        if (pthread_cond_init(&cond_, NULL) != 0)
+        {
+            throw std::exception();
+        }
+    }
+
+    ~Cond()
+    {
+        pthread_cond_destroy(&cond_);
+    }
+
+    bool Wait(pthread_mutex_t *mutex)
+    {
+        int res = 0;
+        res = pthread_cond_wait(&cond_, mutex);
+        return res == 0;
+    }
+
+    bool TimeWait(pthread_mutex_t *mutex, struct timespec t)
+    {
+        int res = 0;
+        res = pthread_cond_timedwait(&cond_, mutex, &t);
+        return res == 0;
+    }
+
+    bool Signal()
+    {
+        return pthread_cond_signal(&cond_);
+    }
+
+    bool Broadcast()
+    {
+        return pthread_cond_broadcast(&cond_);
+    }
+
+private:
+    pthread_cond_t cond_;
+};
 
 #endif //WEBSERVER_LOCKER_H
