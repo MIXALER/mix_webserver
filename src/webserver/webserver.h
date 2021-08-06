@@ -68,7 +68,7 @@ public:
     int close_log_;
     int actor_mode_;
 
-    int pipe_fd_[2];
+    int pipe_fd_[2];//管道
     int epoll_fd_;
     HttpConn *users_;
     // 数据库相关

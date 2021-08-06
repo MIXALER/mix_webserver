@@ -139,7 +139,7 @@ void ThreadP<T>::Run()
         {
             if (request->state_ == 0)
             {
-                if (request->read_once_())
+                if (request->ReadOnce())
                 {
                     request->improve_ = 1;
                     ConnectionRAII mysql_conn(&request->mysql_, conn_pool_);

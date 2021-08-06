@@ -91,7 +91,6 @@ void ConnectionPool::Init(string url, string user, string passwd, string databas
     reserve_ = Sem(free_conn_);
 
     max_conn_ = free_conn_;
-
 }
 
 void ConnectionPool::DestroyPool()

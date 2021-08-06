@@ -19,6 +19,17 @@ int main(int argc, char **argv)
 
     server.Init(config.port_, user, passwd, database_name, config.log_write_, config.opt_linger_, config.trig_mode_,
                 config.sql_num_, config.thread_num_, config.close_log_, config.actor_mode_);
+    server.LogWrite();
 
+    server.SqlPool();
 
+    server.ThreadPool();
+
+    server.TrigMode();
+
+    server.EventListen();
+
+    server.EventLoop();
+
+    return 0;
 }
